@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Générateur de Progressions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Générez vos progressions pédagogiques facilement et exportez-les en PDF.">
+<meta name="keywords" content="progression, enseignement, PDF, tableau, éducation, professeur">
+<meta name="author" content="Timothé AOUN">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<div class="banner">
+  <div class="author">Par
+    <img src="https://avatars.githubusercontent.com/u/216161349?s=96&v=4" alt="Avatar GitHub" class="avatar">
+    <div class="author-hover-area">
+      <a href="https://timotheaoun.github.io/" target="_blank" class="author-link">Timothé AOUN</a>
+      <div class="tooltip markdown-tooltip">
+        <strong>## Timothé AOUN</strong><br>
+        <em>Développeur passionné</em><br><br>
+        - 💡 Pédagogie inversée<br>
+        - 🧠 Logique & IA<br>
+        - 🛠 Créateur d'outils utiles
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .period {
+      margin-bottom: 3rem;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 10px;
+      min-height: 40px;
+    }
+
+    th {
+      background-color: #e3e3ff;
+    }
+td.editable {
+  cursor: pointer; /* par défaut */
+}
+    td.editable:hover {
+      background-color: #f0f8ff;
+      cursor: pointer;
+    }
+	td.editable:focus {
+  cursor: text;
+}
+
+    input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 10px;
+      margin-right: 10px;
+      padding: 10px 20px;
+      background-color: #7e89fb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #5c6ef8;
+    }
+
+    .special-tag {
+      background-color: #ffefc4;
+      font-weight: bold;
+      text-align: center;
+      user-select: none;
+    }
+
+    .special-selector {
+      position: absolute;
+      z-index: 1000;
+      font-family: 'Montserrat', sans-serif;
+      padding: 4px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+	  cursor: selected;
+    }
+	.banner {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #e3e3ff;
+  color: #333;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 6px 0;
+  z-index: 9999;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  gap: 8px;
+}
+
+.author a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #4a4a88;
+}
+
+.author a:hover {
+  text-decoration: underline;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 99999;
+}
+.author-hover-area {
+  position: relative;
+  display: inline-block;
+}
+
+.author-link {
+  position: relative;
+  z-index: 1;
+}
+
+.markdown-tooltip {
+  display: none;
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  color: #333;
+  font-size: 0.75rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  white-space: normal;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  width: 220px;
+  text-align: left;
+  z-index: 99999;
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
+}
+
+.author-hover-area:hover .markdown-tooltip {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+  </style>
+</head>
+<body>
+
+<h1>Générateur de Progressions Pédagogiques</h1>
+
+<div class="controls">
+  <p>Indiquer le nombre de semaines pour chaque période :</p>
+  <div id="periodInputs"></div>
+  <button onclick="generateTables()">Générer les tableaux</button>
+  <button onclick="exportPDF()">📄 Exporter en PDF</button>
+  <button onclick="clearProject()">🗑️ Supprimer le projet actuel</button>
+
+</div>
+
+<div id="tablesContainer"></div>
+
+<script>
+const days = ["Lundi", "Mardi", "Jeudi", "Vendredi"];
+const periods = 5;
+
+function createInputs() {
+  const container = document.getElementById("periodInputs");
+  for (let i = 1; i <= periods; i++) {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = 1;
+    input.placeholder = `Semaines P${i}`;
+    input.id = `weeksP${i}`;
+    container.appendChild(input);
+  }
+}
+
+// Chargement initial
+createInputs();
+loadProgressions();
+
+function generateTables() {
+  const container = document.getElementById("tablesContainer");
+  container.innerHTML = "";
+
+  const data = {};
+
+  for (let i = 1; i <= periods; i++) {
+    const numWeeks = parseInt(document.getElementById(`weeksP${i}`).value);
+    if (!numWeeks || numWeeks < 1) continue;
+
+    const periodDiv = document.createElement("div");
+    periodDiv.className = "period";
+    periodDiv.dataset.period = `P${i}`;
+
+    const title = document.createElement("h2");
+    title.textContent = `Période ${i}`;
+    periodDiv.appendChild(title);
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    const semaineTh = document.createElement("th");
+    semaineTh.textContent = "Semaine";
+    headerRow.appendChild(semaineTh);
+
+    days.forEach(day => {
+      const th = document.createElement("th");
+      th.textContent = day;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    for (let w = 1; w <= numWeeks; w++) {
+      const row = document.createElement("tr");
+      const weekCell = document.createElement("td");
+      weekCell.textContent = `Semaine ${w}`;
+      row.appendChild(weekCell);
+
+      days.forEach(day => {
+        const td = document.createElement("td");
+        td.classList.add("editable");
+        td.setAttribute("contenteditable", "true");
+        td.setAttribute("tabindex", "0");
+
+        td.dataset.period = `P${i}`;
+        td.dataset.week = w;
+        td.dataset.day = day;
+
+        const saved = getSavedContent(`P${i}`, w, day);
+        if (saved) {
+          td.textContent = saved;
+          if (["Jour férié", "Kermesse", "Dernier jour"].includes(saved)) {
+            td.classList.add("special-tag");
+            td.contentEditable = "false";
+          }
+        }
+
+        td.addEventListener("input", saveProgressions);
+        row.appendChild(td);
+      });
+
+      tbody.appendChild(row);
+    }
+
+    table.appendChild(tbody);
+    periodDiv.appendChild(table);
+    container.appendChild(periodDiv);
+
+    data[`P${i}`] = numWeeks;
+  }
+
+  localStorage.setItem("structure", JSON.stringify(data));
+}
+
+function getSavedContent(period, week, day) {
+  const saved = JSON.parse(localStorage.getItem("progressions") || "{}");
+  return saved[`${period}-${week}-${day}`] || "";
+}
+
+function saveProgressions() {
+  const cells = document.querySelectorAll("td.editable");
+  const data = {};
+  cells.forEach(cell => {
+    const content = cell.textContent.trim();
+    const key = `${cell.dataset.period}-${cell.dataset.week}-${cell.dataset.day}`;
+    if (content) data[key] = content;
+  });
+  localStorage.setItem("progressions", JSON.stringify(data));
+}
+
+function loadProgressions() {
+  const structure = JSON.parse(localStorage.getItem("structure") || "{}");
+  for (let i = 1; i <= periods; i++) {
+    const weeks = structure[`P${i}`];
+    if (weeks) {
+      document.getElementById(`weeksP${i}`).value = weeks;
+    }
+  }
+  generateTables();
+}
+
+function exportPDF() {
+  const element = document.getElementById("tablesContainer");
+  const opt = {
+    margin: 0.5,
+    filename: 'progressions.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+let selectedCell = null;
+
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.key === "+") {
+    const cell = document.activeElement;
+    if (cell.classList.contains("editable")) {
+      e.preventDefault();
+      selectedCell = cell;
+      showTagMenu(cell);
+    }
+  }
+});
+
+function showTagMenu(cell) {
+  const menu = document.getElementById("tagMenu");
+  const rect = cell.getBoundingClientRect();
+  menu.style.left = `${rect.left + window.scrollX}px`;
+  menu.style.top = `${rect.top + window.scrollY}px`;
+  menu.style.display = "block";
+  menu.value = "";
+
+  menu.onchange = () => {
+    if (menu.value === "custom") {
+      const customText = prompt("Nom de l'évènement à ajouter :");
+      if (customText) {
+        cell.textContent = customText;
+        cell.classList.add("special-tag");
+        cell.contentEditable = "false";
+        saveProgressions();
+      }
+    } else if (menu.value) {
+      cell.textContent = menu.value;
+      cell.classList.add("special-tag");
+      cell.contentEditable = "false";
+      saveProgressions();
+    }
+    menu.style.display = "none";
+  };
+}
+
+document.addEventListener("click", function (e) {
+  if (!e.target.matches("#tagMenu")) {
+    document.getElementById("tagMenu").style.display = "none";
+  }
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Delete" || e.key === "Backspace") {
+    const cell = document.activeElement;
+    if (cell && cell.classList.contains("special-tag")) {
+      e.preventDefault();
+      cell.textContent = "";
+      cell.classList.remove("special-tag");
+      cell.setAttribute("contenteditable", "true");
+      saveProgressions();
+    }
+  }
+});
+function clearProject() {
+  const confirmed = confirm("Êtes-vous sûr de vouloir supprimer le projet actuel ?");
+  if (confirmed) {
+    localStorage.removeItem("progressions");
+    localStorage.removeItem("structure");
+    location.reload();
+  }
+}
+</script>
+
+<select id="tagMenu" class="special-selector" style="display:none;">
+  <option value="Jour férié">Jour férié</option>
+  <option value="Dernier jour">Dernier jour</option>
+  <option value="custom">➕ Ajouter un évènement…</option>
+</select>
+</body>
+</html>
