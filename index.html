@@ -230,6 +230,12 @@ td.editable {
   <button onclick="generateTables()">Générer les tableaux</button>
   <button onclick="exportPDF()">📄 Exporter en PDF</button>
   <button onclick="clearProject()">🗑️ Supprimer le projet actuel</button>
+  <div style="margin: 20px;">
+  <button onclick="sauvegarder()">💾 Sauvegarder localement</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importer(event)">
+  <button onclick="document.getElementById('importFile').click()">📤 Importer</button>
+</div>
+
 
 </div>
 
@@ -439,6 +445,104 @@ function clearProject() {
   }
 }
 </script>
+<script>
+function getCurrentState() {
+  // Récupère le nombre de semaines par période
+  const structure = {};
+  for (let i = 1; i <= periods; i++) {
+    const val = parseInt(document.getElementById(`weeksP${i}`).value);
+    if (val && val > 0) {
+      structure[`P${i}`] = val;
+    }
+  }
+
+  // Récupère le contenu des cellules éditables
+  const progressions = {};
+  document.querySelectorAll("td.editable").forEach(cell => {
+    const key = `${cell.dataset.period}-${cell.dataset.week}-${cell.dataset.day}`;
+    const content = cell.textContent.trim();
+    if (content) {
+      progressions[key] = content;
+    }
+  });
+
+  return {
+    structure: structure,
+    progressions: progressions
+  };
+}
+
+function restaurerEtat(data) {
+  if (!data || !data.structure || !data.progressions) {
+    alert("Format de fichier invalide");
+    return;
+  }
+
+  // Met à jour les inputs du nombre de semaines par période
+  for (let i = 1; i <= periods; i++) {
+    if (data.structure[`P${i}`]) {
+      document.getElementById(`weeksP${i}`).value = data.structure[`P${i}`];
+    } else {
+      document.getElementById(`weeksP${i}`).value = "";
+    }
+  }
+
+  // Génère les tableaux avec les nouvelles valeurs
+  generateTables();
+
+  // Remplit les cellules avec les données importées
+  Object.entries(data.progressions).forEach(([key, content]) => {
+    // key = "P1-2-Lundi" par exemple
+    const cell = document.querySelector(`td.editable[data-period="${key.split('-')[0]}"][data-week="${key.split('-')[1]}"][data-day="${key.split('-')[2]}"]`);
+    if (cell) {
+      cell.textContent = content;
+
+      // Ajoute la classe spéciale si le contenu correspond
+      if (["Jour férié", "Kermesse", "Dernier jour"].includes(content)) {
+        cell.classList.add("special-tag");
+        cell.contentEditable = "false";
+      } else {
+        cell.classList.remove("special-tag");
+        cell.contentEditable = "true";
+      }
+    }
+  });
+
+  saveProgressions(); // Sauvegarde dans localStorage après import
+  alert("Données importées avec succès !");
+}
+
+function sauvegarder() {
+  const etat = getCurrentState();
+  const blob = new Blob([JSON.stringify(etat, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "progression.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importer(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      restaurerEtat(data);
+    } catch (err) {
+      alert("Fichier invalide");
+    }
+  };
+  reader.readAsText(file);
+}
+</script>
+
+
 
 <select id="tagMenu" class="special-selector" style="display:none;">
   <option value="Jour férié">Jour férié</option>
