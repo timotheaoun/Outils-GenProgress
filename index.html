@@ -227,7 +227,112 @@ td.editable {
   opacity: 1;
   pointer-events: auto;
 }
+.presentation-markdown {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: linear-gradient(135deg, #fefeff, #f0f4ff);
+  border-left: 6px solid #7e89fb;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #2d2d2d;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
 
+.presentation-markdown h2, 
+.presentation-markdown h3 {
+  color: #5c6ef8;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  position: relative;
+}
+
+.presentation-markdown h2 {
+  font-size: 1.6rem;
+}
+
+.presentation-markdown h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background-color: #7e89fb;
+  margin-top: 8px;
+  border-radius: 3px;
+}
+
+.presentation-markdown h3 {
+  font-size: 1.25rem;
+}
+
+.presentation-markdown p {
+  margin-bottom: 1.2rem;
+}
+
+.presentation-markdown ul {
+  padding-left: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.presentation-markdown li {
+  margin-bottom: 0.5rem;
+    text-indent: 0.8rem;
+}
+
+.presentation-markdown strong {
+  color: #333;
+}
+
+.presentation-markdown code {
+  background: #f6f8fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.presentation-markdown pre {
+  background: #f6f8fa;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.95rem;
+  border: 1px solid #e1e4e8;
+  font-family: 'Courier New', monospace;
+}
+
+.presentation-markdown blockquote {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-left: 5px solid #7e89fb;
+  color: #555;
+  font-style: italic;
+  border-radius: 6px;
+}
+
+.presentation-markdown .presentation-icon {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  font-size: 5rem;
+  color: rgba(126, 137, 251, 0.08);
+  pointer-events: none;
+}
+.Shortcut {
+  border-left: 6px solid orange;
+}
+.First {
+  border-left: 6px solid red;
+}
+.Second {
+  border-left: 6px solid purple;
+}
 
   </style>
 </head>
@@ -552,13 +657,54 @@ function importer(event) {
   reader.readAsText(file);
 }
 </script>
-
-
-
 <select id="tagMenu" class="special-selector" style="display:none;">
   <option value="Jour férié">Jour férié</option>
   <option value="Dernier jour">Dernier jour</option>
   <option value="custom">➕ Ajouter un évènement…</option>
 </select>
+
+
+	
+<div id="welcomeScreen">
+<div class="presentation-markdown">
+  <center><h2>Comment ça marche ?</h2></center>
+  <p>Dans <strong>GenerateurP</strong>, tout est conçu pour être au plus simple...</p>
+  <div class="presentation-markdown First">
+  <h3> Si vous êtes dessus pour la première fois: </h3>
+  <li>Complétez le nombre de semaines par périodes (GenerateurP ne propose pas encore de version automatique)</li>
+  <li>Cliquez sur   <button onclick="generateTables()">Générer les tableaux</button>vous verrez alors apparaître pour chaque période le bon nombre de lignes <code>"Semaines"</code> que vous aurez fourni précédemment</li>
+  <li>Vous pourrez alors simplement cliquer sur n'importe quelle case du tableau pour la compléter, pour transformer une case en case spéciales, tapez <code>Ctrl</code>et<code>+</code>simultanément sur votre clavier</li>
+  <li>Pour enregistrer votre projet, cliquez sur le bouton<button onclick="sauvegarder()">💾 Sauvegarder localement</button>. Le programme exportera alors vos données saisies dans le tableau au format <code>JSON</code>. Une fois téléchargé, ne rennomez pas l'extension du fichier (le .json)
+  </div>
+  <div class="presentation-markdown Second">
+   <h3> Si ce n'est pas la première fois: </h3>
+  <li>Pour charger un projet déjà existant que vous avez sauvegardé, cliquez sur   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importer(event)"><button onclick="document.getElementById('importFile').click()">📤 Importer</button>et sélectionnez un fichier <code>JSON</code></li>
+  <li>Peut-être que accidentellement, vous fermerez la page. Dans ce cas, pas de panique, vous pouvez <button onclick="generateTables()">Restaurer le dernier projet</button>, cela permet de revenir là où vous en étiez. Cependant, cette option ne vous permettra pas de récupérer vos données si vous les avez supprimées de la mémoire avec <button class="warning" onclick="clearProject()">🗑️ Supprimer le projet actuel</button> 
+  </div>
+  </div>
+
+<div class="presentation-markdown Shortcut">
+  <center><h2>Automatisation?</h2></center>
+<p><strong>GenerateurP</strong> vous propose un import le plus transparent possible sous cette forme:
+<pre>
+{
+  "structure": {
+    "P1": 1,
+    "P2": 2,
+    "P3": 3,
+    "P4": 4,
+    "P5": 5
+  },
+  "progressions": {
+    "P1-1-Lundi": "Ceci est un exemple dans période 1, semaine1, lundi",
+    "P1-1-Mardi": "Ceci est un autre exemple  dans période 1, semaine1, Mardi",
+  }
+}
+</pre>
+<p> Vous pouvez ainsi automatiser plusieurs choses propres à vos besoins, par exemple: </p>
+<li>Un script python exporte des données brutes <code>CSV</code> en format JSON compatiples avec <strong>GenerateurP</strong>
+<li>Avec l'idée ci-dessus, vous pouvez récupérer des données via des clés d'API, depuis des documents... Toutes les possibilités s'offrent à vous</li>
+</div>
+</div>
 </body>
 </html>
